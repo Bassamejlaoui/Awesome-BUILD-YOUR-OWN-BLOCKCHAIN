@@ -442,3 +442,62 @@ In [17]:
 ```python
 checkChain(chain)
 ```
+
+Out[17]:
+
+{'Alice': 72, 'Bob': 28}
+
+
+And even if we are loading the chain from a text file, e.g. from backup or loading it for the first time, we can check the integrity of the chain and create the current state:
+
+
+In [18]:
+
+```python
+chainAsText = json.dumps(chain,sort_keys=True)
+checkChain(chainAsText)
+```
+
+Out[18]:
+
+{'Alice': 72, 'Bob': 28}
+
+## Putting it together: The final Blockchain Architecture:
+
+In an actual blockchain network, new nodes would download a copy of the blockchain and verify it (as we just did above), then announce their presence on the peer-to-peer network and start listening for transactions. Bundling transactions into a block, they then pass their proposed block on to other nodes.
+
+We’ve seen how to verify a copy of the blockchain, and how to bundle transactions into a block. If we recieve a block from somewhere else, verifying it and adding it to our blockchain is easy.
+
+Let’s say that the following code runs on Node A, which mines the block:
+
+In [19]:
+
+```python
+import copy
+nodeBchain = copy.copy(chain)
+nodeBtxns  = [makeTransaction() for i in range(5)]
+newBlock   = makeBlock(nodeBtxns,nodeBchain)
+```
+
+Now assume that the newBlock is transmitted to our node, and we want to check it and update our state if it is a valid block:
+
+In [20]:
+
+```python
+print("Blockchain on Node A is currently %s blocks long"%len(chain))
+
+try:
+    print("New Block Received; checking validity...")
+    state = checkBlockValidity(newBlock,chain[-1],state) # Update the state- this will throw an error if the block is invalid!
+    chain.append(newBlock)
+except:
+    print("Invalid block; ignoring and waiting for the next block...")
+
+print("Blockchain on Node A is now %s blocks long"%len(chain))
+```
+
+*Blockchain on Node A is currently 7 blocks long
+New Block Received; checking validity...
+Blockchain on Node A is now 8 blocks long*
+
+# Conclusions and Extensions
