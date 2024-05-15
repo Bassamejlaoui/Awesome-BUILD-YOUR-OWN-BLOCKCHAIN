@@ -173,3 +173,121 @@ We’re ready to start making our blockchain! Right now, there’s nothing on th
 
 In [7]:
 
+```python
+state = {'Alice': 50, 'Bob': 50}  # Define the initial state
+genesisBlockTxns = [state]
+genesisBlockContents = {'blockNumber': 0, 'parentHash': None, 'txnCount': 1, 'txns': genesisBlockTxns}
+genesisHash = hashMe(genesisBlockContents)
+genesisBlock = {'hash': genesisHash, 'contents': genesisBlockContents}
+genesisBlockStr = json.dumps(genesisBlock, sort_keys=True)
+```
+
+Great! This becomes the first element from which everything else will be linked.
+
+In [8]:
+
+```python
+chain = [genesisBlock]
+```
+
+For each block, we want to collect a set of transactions, create a header, hash it, and add it to the chain
+
+In [9]:
+
+```python
+def makeBlock(txns, chain):
+    """
+    Creates a new block.
+
+    Args:
+        txns (list): List of transactions.
+        chain (list): List of blocks representing the blockchain.
+
+    Returns:
+        dict: A new block.
+    """
+    parentBlock = chain[-1]
+    parentHash = parentBlock['hash']
+    blockNumber = parentBlock['contents']['blockNumber'] + 1
+    txnCount = len(txns)
+    blockContents = {'blockNumber': blockNumber, 'parentHash': parentHash,
+                     'txnCount': len(txns), 'txns': txns}
+    blockHash = hashMe(blockContents)
+    block = {'hash': blockHash, 'contents': blockContents}
+    
+    return block
+```
+
+Let’s use this to process our transaction buffer into a set of blocks:
+
+In [10]:
+
+```python
+blockSizeLimit = 5  # Arbitrary number of transactions per block- 
+                    #  this is chosen by the block miner, and can vary between blocks!
+
+while len(txnBuffer) > 0:
+    bufferStartSize = len(txnBuffer)
+    
+    ## Gather a set of valid transactions for inclusion
+    txnList = []
+    while (len(txnBuffer) > 0) & (len(txnList) < blockSizeLimit):
+        newTxn = txnBuffer.pop()
+        validTxn = isValidTxn(newTxn, state) # This will return False if txn is invalid
+        
+        if validTxn:           # If we got a valid state, not 'False'
+            txnList.append(newTxn)
+            state = updateState(newTxn, state)
+        else:
+            print("ignored transaction")
+            sys.stdout.flush()
+            continue  # This was an invalid transaction; ignore it and move on
+        
+    ## Make a block
+    myBlock = makeBlock(txnList, chain)
+    chain.append(myBlock)
+```
+
+In [11]:
+
+```python
+chain[0]
+```
+
+Out[11]:
+{'contents': {'blockNumber': 0,
+  'parentHash': None,
+  'txnCount': 1,
+  'txns': [{'Alice': 50, 'Bob': 50}]},
+ 'hash': '7c88a4312054f89a2b73b04989cd9b9e1ae437e1048f89fbb4e18a08479de507'}
+
+
+In [12]:
+
+```python
+chain[1]
+```
+
+Out[12]:
+{'contents': {'blockNumber': 1,
+  'parentHash': '7c88a4312054f89a2b73b04989cd9b9e1ae437e1048f89fbb4e18a08479de507',
+  'txnCount': 5,
+  'txns': [{'Alice': 3, 'Bob': -3},
+   {'Alice': -1, 'Bob': 1},
+   {'Alice': 3, 'Bob': -3},
+   {'Alice': -2, 'Bob': 2},
+   {'Alice': 3, 'Bob': -3}]},
+ 'hash': '7a91fc8206c5351293fd11200b33b7192e87fad6545504068a51aba868bc6f72'}
+As expected, the genesis block includes an invalid transaction which initiates account balances (creating tokens out of thin air). The hash of the parent block is referenced in the child block, which contains a set of new transactions which affect system state. We can now see the state of the system, updated to include the transactions:
+
+In [13]:
+
+```python
+state
+```
+
+Out[13]:
+
+
+{'Alice': 72, 'Bob': 28}
+
