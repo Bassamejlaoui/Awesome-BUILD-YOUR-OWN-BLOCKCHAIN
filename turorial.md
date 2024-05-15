@@ -1,4 +1,7 @@
 # BUILD YOUR OWN BLOCKCHAIN: A PYTHON TUTORIAL
+
+![image](https://github.com/mejbass/Awesome-BUILD-YOUR-OWN-BLOCKCHAIN/assets/130122304/8596341c-ddbe-4da5-a327-7bdcdbfb833f)
+----
 **Download the full Jupyter/iPython notebook from Github [here](https://github.com/mejbass/Awesome-BUILD-YOUR-OWN-BLOCKCHAIN/blob/main/BuildYourOwnBlockchain.ipynb)**
 
 ## Build Your Own Blockchain – The Basics
