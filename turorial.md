@@ -269,6 +269,7 @@ chain[1]
 ```
 
 Out[12]:
+
 {'contents': {'blockNumber': 1,
 
   'parentHash': 
@@ -501,3 +502,9 @@ New Block Received; checking validity...
 Blockchain on Node A is now 8 blocks long*
 
 # Conclusions and Extensions
+
+We’ve created all the basic architecture for a blockchain, from a set of state transition rules to a method for creating blocks, to mechanisms for checking the validity of transactions, blocks, and the full chain. We can derive the system state from a downloaded copy of the blockchain, validate new blocks that we recieve from the network, and create our own blocks.
+
+The system state that we’ve created is effectively a distributed ledger or database- the core of many blockchains. We could extend this to include special transaction types or full smart contracts.
+
+We haven’t explored the network architecture, the proof-of-work or proof-of-state validation step, and the consensus mechanism which provides blockchains with security against attack. We also haven’t discussed public key cryptography, privacy, and verification steps. More on that in the future!
