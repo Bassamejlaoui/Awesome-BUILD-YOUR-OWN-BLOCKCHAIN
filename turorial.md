@@ -2,7 +2,7 @@
 **Download the full Jupyter/iPython notebook from Github [here](https://github.com/mejbass/Awesome-BUILD-YOUR-OWN-BLOCKCHAIN/blob/main/BuildYourOwnBlockchain.ipynb)**
 
 ## Build Your Own Blockchain – The Basics
-This tutorial will walk you through the basics of how to build a blockchain from scratch. Focusing on the details of a concrete example will provide a deeper understanding of the strengths and limitations of blockchains. For a higher-level overview, I’d recommend this excellent article from BitsOnBlocks.
+This tutorial will walk you through the basics of how to build a blockchain from scratch. Focusing on the details of a concrete example will provide a deeper understanding of the strengths and limitations of blockchains. For a higher-level overview, I’d recommend [this excellent article from BitsOnBlocks](https://bitsonblocks.net/2015/09/09/a-gentle-introduction-to-blockchain-technology/).
 
 ## Transactions, Validation, and updating system state
 At its core, a blockchain is a distributed database with a set of rules for verifying new additions to the database. We’ll start off by tracking the accounts of two imaginary people: Alice and Bob, who will trade virtual money with each other.
