@@ -302,3 +302,143 @@ Out[13]:
 
 {'Alice': 72, 'Bob': 28}
 
+## Checking Chain Validity:
+Now that we know how to create new blocks and link them together into a chain, let’s define functions to check that new blocks are valid- and that the whole chain is valid.
+
+On a blockchain network, this becomes important in two ways:
+
+- When we initially set up our node, we will download the full blockchain history. After downloading the chain, we would need to run through the blockchain to compute the state of the system. To protect against somebody inserting invalid transactions in the initial chain, we need to check the validity of the entire chain in this initial download.
+
+-Once our node is synced with the network (has an up-to-date copy of the blockchain and a representation of system state) it will need to check the validity of new blocks that are broadcast to the network.
+
+We will need three functions to facilitate in this:
+
+**checkBlockHash:** A simple helper function that makes sure that the block contents match the hash
+
+**checkBlockValidity:** Checks the validity of a block, given its parent and the current system state. We want this to return the updated state if the block is valid, and raise an error otherwise.
+
+**checkChain:** Check the validity of the entire chain, and compute the system state beginning at the genesis block. This will return the system state if the chain is valid, and raise an error otherwise.
+
+In [14]:
+
+```python
+def checkBlockHash(block):
+    """
+    Checks if the hash of the block matches its contents.
+
+    Args:
+        block (dict): The block to be checked.
+
+    Raises:
+        Exception: If the hash does not match the block contents.
+    """
+    # Raise an exception if the hash does not match the block contents
+    expectedHash = hashMe(block['contents'])
+    if block['hash'] != expectedHash:
+        raise Exception('Hash does not match contents of block %s' % block['contents']['blockNumber'])
+    return
+```
+
+In [15]:
+
+```python
+def checkBlockValidity(block, parent, state):    
+    """
+    Checks the validity of a block.
+
+    Args:
+        block (dict): The block to be checked.
+        parent (dict): The parent block.
+        state (dict): The current state of the system.
+
+    Returns:
+        dict: The updated state if the block is valid.
+
+    Raises:
+        Exception: If any condition for block validity is not met.
+    """
+    # We want to check the following conditions:
+    # - Each of the transactions are valid updates to the system state
+    # - Block hash is valid for the block contents
+    # - Block number increments the parent block number by 1
+    # - Accurately references the parent block's hash
+    parentNumber = parent['contents']['blockNumber']
+    parentHash = parent['hash']
+    blockNumber = block['contents']['blockNumber']
+    
+    # Check transaction validity; throw an error if an invalid transaction was found.
+    for txn in block['contents']['txns']:
+        if isValidTxn(txn, state):
+            state = updateState(txn, state)
+        else:
+            raise Exception('Invalid transaction in block %s: %s' % (blockNumber, txn))
+
+    checkBlockHash(block)  # Check hash integrity; raises error if inaccurate
+
+    if blockNumber != (parentNumber + 1):
+        raise Exception('Hash does not match contents of block %s' % blockNumber)
+
+    if block['contents']['parentHash'] != parentHash:
+        raise Exception('Parent hash not accurate at block %s' % blockNumber)
+    
+    return state
+```
+
+In [16]:
+
+```python
+def checkChain(chain):
+    """
+    Checks the validity of the blockchain.
+
+    Args:
+        chain (list): List of blocks representing the blockchain.
+
+    Returns:
+        dict or False: The state of the system if the chain is valid, False otherwise.
+    """
+    # Work through the chain from the genesis block (which gets special treatment), 
+    #  checking that all transactions are internally valid,
+    #    that the transactions do not cause an overdraft,
+    #    and that the blocks are linked by their hashes.
+    # This returns the state as a dictionary of accounts and balances,
+    #   or returns False if an error was detected
+
+    ## Data input processing: Make sure that our chain is a list of dicts
+    if type(chain) == str:
+        try:
+            chain = json.loads(chain)
+            assert type(chain) == list
+        except:  # This is a catch-all, admittedly crude
+            return False
+    elif type(chain) != list:
+        return False
+    
+    state = {}
+    ## Prime the pump by checking the genesis block
+    # We want to check the following conditions:
+    # - Each of the transactions are valid updates to the system state
+    # - Block hash is valid for the block contents
+
+    for txn in chain[0]['contents']['txns']:
+        state = updateState(txn, state)
+    checkBlockHash(chain[0])
+    parent = chain[0]
+    
+    ## Checking subsequent blocks: These additionally need to check
+    #    - the reference to the parent block's hash
+    #    - the validity of the block number
+    for block in chain[1:]:
+        state = checkBlockValidity(block, parent, state)
+        parent = block
+        
+    return state
+```
+
+We can now check the validity of the state:
+
+In [17]:
+
+```python
+checkChain(chain)
+```
