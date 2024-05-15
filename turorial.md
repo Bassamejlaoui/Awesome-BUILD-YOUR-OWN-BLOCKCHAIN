@@ -270,14 +270,25 @@ chain[1]
 
 Out[12]:
 {'contents': {'blockNumber': 1,
-  'parentHash': '7c88a4312054f89a2b73b04989cd9b9e1ae437e1048f89fbb4e18a08479de507',
+
+  'parentHash': 
+  '7c88a4312054f89a2b73b04989cd9b9e1ae437e1048f89fbb4e18a08479de507',
+ 
   'txnCount': 5,
+  
   'txns': [{'Alice': 3, 'Bob': -3},
+  
    {'Alice': -1, 'Bob': 1},
+   
    {'Alice': 3, 'Bob': -3},
+   
    {'Alice': -2, 'Bob': 2},
+   
    {'Alice': 3, 'Bob': -3}]},
- 'hash': '7a91fc8206c5351293fd11200b33b7192e87fad6545504068a51aba868bc6f72'}
+ 
+ 'hash':
+ '7a91fc8206c5351293fd11200b33b7192e87fad6545504068a51aba868bc6f72'}
+ 
 As expected, the genesis block includes an invalid transaction which initiates account balances (creating tokens out of thin air). The hash of the parent block is referenced in the child block, which contains a set of new transactions which affect system state. We can now see the state of the system, updated to include the transactions:
 
 In [13]:
