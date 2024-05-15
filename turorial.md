@@ -108,3 +108,68 @@ def updateState(txn, state):
             state[key] = txn[key]
     return state
 ```
+
+In [5]:
+
+```python
+def isValidTxn(txn, state):
+    """
+    Checks if the transaction is valid.
+
+    Args:
+        txn (dict): Transaction dictionary keyed by account names.
+        state (dict): State dictionary keyed by account names, holding numeric values for account balance.
+
+    Returns:
+        bool: True if the transaction is valid, False otherwise.
+    """
+    # Assume that the transaction is a dictionary keyed by account names
+
+    # Check that the sum of the deposits and withdrawals is 0
+    if sum(txn.values()) != 0:
+        return False
+    
+    # Check that the transaction does not cause an overdraft
+    for key in txn.keys():
+        if key in state.keys(): 
+            acctBalance = state[key]
+        else:
+            acctBalance = 0
+        if (acctBalance + txn[key]) < 0:
+            return False
+    
+    return True
+```
+
+Here are a set of sample transactions, some of which are fraudulent- but we can now check their validity!
+
+In [6]:
+
+```python
+state = {'Alice': 5, 'Bob': 5}
+
+print(isValidTxn({'Alice': -3, 'Bob': 3}, state))  # Basic transaction- this works great!
+print(isValidTxn({'Alice': -4, 'Bob': 3}, state))  # But we can't create or destroy tokens!
+print(isValidTxn({'Alice': -6, 'Bob': 6}, state))  # We also can't overdraft our account.
+print(isValidTxn({'Alice': -4, 'Bob': 2, 'Lisa': 2}, state))  # Creating new users is valid
+print(isValidTxn({'Alice': -4, 'Bob': 3, 'Lisa': 2}, state))  # But the same rules still apply!
+```
+True
+
+False
+
+False
+
+True
+
+False
+
+
+Each block contains a batch of transactions, a reference to the hash of the previous block (if block number is greater than 1), and a hash of its contents and the header
+
+## Building the Blockchain: From Transactions to Blocks:
+
+We’re ready to start making our blockchain! Right now, there’s nothing on the blockchain, but we can get things started by defining the ‘genesis block’ (the first block in the system). Because the genesis block isn’t linked to any prior block, it gets treated a bit differently, and we can arbitrarily set the system state. In our case, we’ll create accounts for our two users (Alice and Bob) and give them 50 coins each.
+
+In [7]:
+
